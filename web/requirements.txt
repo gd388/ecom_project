@@ -1,0 +1,8 @@
+Django>=4.2
+djangorestframework
+psycopg2-binary
+celery==5.3.1
+flower
+requests
+django-celery-results
+gunicorn

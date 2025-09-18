@@ -1,0 +1,67 @@
+# version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    ports:
+      - "15672:15672"
+    networks:
+      - backend
+
+  web:
+    build: ./web
+    command: bash -c "python manage.py migrate --noinput && gunicorn order_project.wsgi:application --bind 0.0.0.0:8000"
+    env_file:
+      - web/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - backend
+
+  worker:
+    build: ./web
+    command: bash -c "celery -A order_project worker --loglevel=info --concurrency=1 -E"
+    env_file:
+      - web/.env
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - backend
+
+  flower:
+    build:
+      context: ./web    # ✅ use the same context as web
+      dockerfile: Dockerfile
+    command: bash -c "celery -A order_project flower --port=5555 --broker=amqp://guest:guest@rabbitmq//"
+    env_file:
+      - web/.env        # ✅ so Flower gets same environment as web/worker
+    depends_on:
+      - rabbitmq
+    ports:
+      - "5555:5555"
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
