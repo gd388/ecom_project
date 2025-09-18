@@ -128,8 +128,8 @@ exit()
 
 ### Celery & RabbitMQ Monitoring
 
-* **Flower UI:** `http://localhost:5555`
-* **RabbitMQ Management UI:** `http://localhost:15672`
+* **Flower UI:** [http://localhost:5555](http://localhost:5555)
+* **RabbitMQ Management UI:** [http://localhost:15672](http://localhost:15672)
 
   * Default credentials: `guest / guest`
 
@@ -167,9 +167,4 @@ exit()
 * Monitoring via Flower & RabbitMQ UI
 * Dockerized setup for easy deployment
 
-### Optional Enhancements
 
-* Celery Beat daily sales summary
-* Email notifications
-* Dead-letter queue for failed tasks
-* Retry failed webhooks
